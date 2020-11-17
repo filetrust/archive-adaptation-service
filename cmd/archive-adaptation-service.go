@@ -21,7 +21,6 @@ const (
 )
 
 var (
-	exchange   = "adaptation-exchange"
 	routingKey = "archive-adaptation-request"
 	queueName  = "archive-adaptation-request-queue"
 
@@ -43,6 +42,7 @@ var (
 
 	podNamespace             = os.Getenv("POD_NAMESPACE")
 	amqpURL                  = os.Getenv("AMQP_URL")
+	exchange                 = os.Getenv("EXCHANGE")
 	inputMount               = os.Getenv("INPUT_MOUNT")
 	outputMount              = os.Getenv("OUTPUT_MOUNT")
 	archiveProcessingImage   = os.Getenv("ARCHIVE_PROCESSING_IMAGE")
@@ -50,8 +50,8 @@ var (
 )
 
 func main() {
-	if podNamespace == "" || amqpURL == "" || inputMount == "" || outputMount == "" {
-		log.Fatalf("init failed: POD_NAMESPACE, AMQP_URL, INPUT_MOUNT or OUTPUT_MOUNT environment variables not set")
+	if podNamespace == "" || amqpURL == "" || exchange == "" || inputMount == "" || outputMount == "" || archiveProcessingImage == "" || archiveProcessingTimeout == "" {
+		log.Fatalf("init failed: POD_NAMESPACE, AMQP_URL, EXCHANGE, INPUT_MOUNT, OUTPUT_MOUNT, ARCHIVE_PROCESSING_IMAGE or ARCHIVE_PROCESSING_TIMEOUT environment variables not set")
 	}
 
 	conn, err := amqp.Dial(amqpURL)
