@@ -101,6 +101,13 @@ func processMessage(d amqp.Delivery) (bool, error) {
 		procTime.Observe(float64(time.Since(start).Milliseconds()))
 	}(time.Now())
 
+	if d.Headers["archive-file-id"] == nil ||
+		d.Headers["source-file-location"] == nil ||
+		d.Headers["rebuilt-file-location"] == nil ||
+		d.Headers["outcome-reply-to"] == nil {
+		return false, fmt.Errorf("Header value is nil")
+	}
+
 	archiveFileID := d.Headers["archive-file-id"].(string)
 	input := d.Headers["source-file-location"].(string)
 	output := d.Headers["rebuilt-file-location"].(string)
