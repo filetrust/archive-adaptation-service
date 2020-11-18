@@ -17,16 +17,20 @@ import (
 )
 
 type PodArgs struct {
-	PodNamespace             string
-	Client                   *kubernetes.Clientset
-	ArchiveFileID            string
-	Input                    string
-	Output                   string
-	InputMount               string
-	OutputMount              string
-	ReplyTo                  string
-	ArchiveProcessingImage   string
-	ArchiveProcessingTimeout string
+	PodNamespace                   string
+	Client                         *kubernetes.Clientset
+	ArchiveFileID                  string
+	Input                          string
+	Output                         string
+	InputMount                     string
+	OutputMount                    string
+	ReplyTo                        string
+	ArchiveProcessingImage         string
+	ArchiveProcessingTimeout       string
+	AdaptationRequestQueueHostname string
+	AdaptationRequestQueuePort     string
+	MessageBrokerUser              string
+	MessageBrokerPassword          string
 }
 
 func (podArgs *PodArgs) GetClient() error {
@@ -118,6 +122,10 @@ func (pa PodArgs) GetPodObject() *core.Pod {
 						{Name: "OutputPath", Value: pa.Output},
 						{Name: "ReplyTo", Value: pa.ReplyTo},
 						{Name: "ProcessingTimeoutDuration", Value: pa.ArchiveProcessingTimeout},
+						{Name: "MessageBrokerUser", Value: pa.MessageBrokerUser},
+						{Name: "MessageBrokerPassword", Value: pa.MessageBrokerPassword},
+						{Name: "AdaptationRequestQueueHostname", Value: pa.AdaptationRequestQueueHostname},
+						{Name: "AdaptationRequestQueuePort", Value: pa.AdaptationRequestQueuePort},
 					},
 					VolumeMounts: []core.VolumeMount{
 						{Name: "sourcedir", MountPath: pa.InputMount},
