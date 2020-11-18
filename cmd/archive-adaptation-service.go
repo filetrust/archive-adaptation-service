@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"time"
 
@@ -40,22 +41,51 @@ var (
 		[]string{"status"},
 	)
 
-	podNamespace             = os.Getenv("POD_NAMESPACE")
-	amqpURL                  = os.Getenv("AMQP_URL")
-	exchange                 = os.Getenv("EXCHANGE")
-	inputMount               = os.Getenv("INPUT_MOUNT")
-	outputMount              = os.Getenv("OUTPUT_MOUNT")
-	archiveProcessingImage   = os.Getenv("ARCHIVE_PROCESSING_IMAGE")
-	archiveProcessingTimeout = os.Getenv("ARCHIVE_PROCESSING_TIMEOUT")
+	podNamespace                          = os.Getenv("POD_NAMESPACE")
+	exchange                              = os.Getenv("EXCHANGE")
+	inputMount                            = os.Getenv("INPUT_MOUNT")
+	outputMount                           = os.Getenv("OUTPUT_MOUNT")
+	archiveProcessingImage                = os.Getenv("ARCHIVE_PROCESSING_IMAGE")
+	archiveProcessingTimeout              = os.Getenv("ARCHIVE_PROCESSING_TIMEOUT")
+	archiveAdaptationRequestQueueHostname = os.Getenv("ARCHIVE_ADAPTATION_REQUEST_QUEUE_HOSTNAME")
+	archiveAdaptationRequestQueuePort     = os.Getenv("ARCHIVE_ADAPTATION_REQUEST_QUEUE_PORT")
+	adaptationRequestQueueHostname        = os.Getenv("ADAPTATION_REQUEST_QUEUE_HOSTNAME")
+	adaptationRequestQueuePort            = os.Getenv("ADAPTATION_REQUEST_QUEUE_PORT")
+	messageBrokerUser                     = os.Getenv("MESSAGE_BROKER_USER")
+	messageBrokerPassword                 = os.Getenv("MESSAGE_BROKER_PASSWORD")
 )
 
 func main() {
-	if podNamespace == "" || amqpURL == "" || exchange == "" || inputMount == "" || outputMount == "" || archiveProcessingImage == "" || archiveProcessingTimeout == "" {
-		log.Fatalf("init failed: POD_NAMESPACE, AMQP_URL, EXCHANGE, INPUT_MOUNT, OUTPUT_MOUNT, ARCHIVE_PROCESSING_IMAGE or ARCHIVE_PROCESSING_TIMEOUT environment variables not set")
+	if podNamespace == "" || exchange == "" || inputMount == "" || outputMount == "" || archiveProcessingImage == "" || archiveProcessingTimeout == "" {
+		log.Fatalf("init failed: POD_NAMESPACE, EXCHANGE, INPUT_MOUNT, OUTPUT_MOUNT, ARCHIVE_PROCESSING_IMAGE or ARCHIVE_PROCESSING_TIMEOUT environment variables not set")
 	}
 
-	conn, err := amqp.Dial(amqpURL)
-	failOnError(err, "Failed to connect to RabbitMQ")
+	if archiveAdaptationRequestQueueHostname == "" || adaptationRequestQueueHostname == "" {
+		log.Fatalf("init failed: ARCHIVE_ADAPTATION_REQUEST_QUEUE_HOSTNAME or ADAPTATION_REQUEST_QUEUE_HOSTNAME environment variables not set")
+	}
+
+	if archiveAdaptationRequestQueuePort == "" || adaptationRequestQueuePort == "" {
+		log.Fatalf("init failed: ARCHIVE_ADAPTATION_REQUEST_QUEUE_PORT or ADAPTATION_REQUEST_QUEUE_PORT environment variables not set")
+	}
+
+	if messageBrokerUser == "" {
+		messageBrokerUser = "guest"
+	}
+
+	if messageBrokerPassword == "" {
+		messageBrokerPassword = "guest"
+	}
+
+	amqpURL := url.URL{
+		Scheme: "amqp",
+		User:   url.UserPassword(messageBrokerUser, messageBrokerPassword),
+		Host:   fmt.Sprintf("%s:%s", adaptationRequestQueueHostname, adaptationRequestQueuePort),
+		Path:   "/",
+	}
+	fmt.Println("Connecting to ", amqpURL.Host)
+
+	conn, err := amqp.Dial(amqpURL.String())
+	failOnError(err, fmt.Sprintf("Failed to connect to RabbitMQ: %s", amqpURL.Host))
 	defer conn.Close()
 
 	ch, err := conn.Channel()
@@ -116,15 +146,19 @@ func processMessage(d amqp.Delivery) (bool, error) {
 	log.Printf("Received a message for file: %s", archiveFileID)
 
 	podArgs := pod.PodArgs{
-		PodNamespace:             podNamespace,
-		ArchiveFileID:            archiveFileID,
-		Input:                    input,
-		Output:                   output,
-		InputMount:               inputMount,
-		OutputMount:              outputMount,
-		ReplyTo:                  replyTo,
-		ArchiveProcessingImage:   archiveProcessingImage,
-		ArchiveProcessingTimeout: archiveProcessingTimeout,
+		PodNamespace:                   podNamespace,
+		ArchiveFileID:                  archiveFileID,
+		Input:                          input,
+		Output:                         output,
+		InputMount:                     inputMount,
+		OutputMount:                    outputMount,
+		ReplyTo:                        replyTo,
+		ArchiveProcessingImage:         archiveProcessingImage,
+		ArchiveProcessingTimeout:       archiveProcessingTimeout,
+		AdaptationRequestQueueHostname: adaptationRequestQueueHostname,
+		AdaptationRequestQueuePort:     adaptationRequestQueuePort,
+		MessageBrokerUser:              messageBrokerUser,
+		MessageBrokerPassword:          messageBrokerPassword,
 	}
 
 	err := podArgs.GetClient()
