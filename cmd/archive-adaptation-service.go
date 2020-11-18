@@ -57,7 +57,7 @@ var (
 
 func main() {
 	if podNamespace == "" || exchange == "" || inputMount == "" || outputMount == "" || archiveProcessingImage == "" || archiveProcessingTimeout == "" {
-		log.Fatalf("init failed: POD_NAMESPACE, AMQP_URL, EXCHANGE, INPUT_MOUNT, OUTPUT_MOUNT, ARCHIVE_PROCESSING_IMAGE or ARCHIVE_PROCESSING_TIMEOUT environment variables not set")
+		log.Fatalf("init failed: POD_NAMESPACE, EXCHANGE, INPUT_MOUNT, OUTPUT_MOUNT, ARCHIVE_PROCESSING_IMAGE or ARCHIVE_PROCESSING_TIMEOUT environment variables not set")
 	}
 
 	if archiveAdaptationRequestQueueHostname == "" || adaptationRequestQueueHostname == "" {
