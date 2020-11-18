@@ -47,7 +47,7 @@ var (
 	outputMount                           = os.Getenv("OUTPUT_MOUNT")
 	archiveProcessingImage                = os.Getenv("ARCHIVE_PROCESSING_IMAGE")
 	archiveProcessingTimeout              = os.Getenv("ARCHIVE_PROCESSING_TIMEOUT")
-	archiveAdaptationRequestQueueHostname = os.Getenv("ARCHIVE_ADAPTATION_QUEUE_REQUEST_HOSTNAME")
+	archiveAdaptationRequestQueueHostname = os.Getenv("ARCHIVE_ADAPTATION_REQUEST_QUEUE_HOSTNAME")
 	archiveAdaptationRequestQueuePort     = os.Getenv("ARCHIVE_ADAPTATION_REQUEST_QUEUE_PORT")
 	adaptationRequestQueueHostname        = os.Getenv("ADAPTATION_REQUEST_QUEUE_HOSTNAME")
 	adaptationRequestQueuePort            = os.Getenv("ADAPTATION_REQUEST_QUEUE_PORT")
@@ -61,11 +61,11 @@ func main() {
 	}
 
 	if archiveAdaptationRequestQueueHostname == "" || adaptationRequestQueueHostname == "" {
-		log.Fatalf("init failed: ARCHIVE_ADAPTATION_QUEUE_REQUEST_HOSTNAME or ADAPTATION_REQUEST_QUEUE_HOSTNAME environment variables not set")
+		log.Fatalf("init failed: ARCHIVE_ADAPTATION_REQUEST_QUEUE_HOSTNAME or ADAPTATION_REQUEST_QUEUE_HOSTNAME environment variables not set")
 	}
 
 	if archiveAdaptationRequestQueuePort == "" || adaptationRequestQueuePort == "" {
-		log.Fatalf("init failed: ARCHIVE_ADAPTATION_REQUEST_QUEUE_PORT, ADAPTATION_REQUEST_QUEUE_PORT environment variables not set")
+		log.Fatalf("init failed: ARCHIVE_ADAPTATION_REQUEST_QUEUE_PORT or ADAPTATION_REQUEST_QUEUE_PORT environment variables not set")
 	}
 
 	if messageBrokerUser == "" {
