@@ -20,6 +20,7 @@ type PodArgs struct {
 	PodNamespace                   string
 	Client                         *kubernetes.Clientset
 	ArchiveFileID                  string
+	ArchiveFileType                string
 	Input                          string
 	Output                         string
 	InputMount                     string
@@ -128,6 +129,7 @@ func (pa PodArgs) GetPodObject() *core.Pod {
 					ImagePullPolicy: core.PullIfNotPresent,
 					Env: []core.EnvVar{
 						{Name: "ArchiveFileId", Value: pa.ArchiveFileID},
+						{Name: "ArchiveFileType", Value: pa.ArchiveFileType},
 						{Name: "InputPath", Value: pa.Input},
 						{Name: "OutputPath", Value: pa.Output},
 						{Name: "ReplyTo", Value: pa.ReplyTo},

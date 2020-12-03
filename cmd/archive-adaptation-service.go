@@ -132,6 +132,7 @@ func processMessage(d amqp.Delivery) (bool, error) {
 	}(time.Now())
 
 	if d.Headers["archive-file-id"] == nil ||
+		d.Headers["archive-file-type"] == nil ||
 		d.Headers["source-file-location"] == nil ||
 		d.Headers["rebuilt-file-location"] == nil ||
 		d.Headers["outcome-reply-to"] == nil {
@@ -139,6 +140,7 @@ func processMessage(d amqp.Delivery) (bool, error) {
 	}
 
 	archiveFileID := d.Headers["archive-file-id"].(string)
+	archiveFileType := d.Headers["archive-file-type"].(string)
 	input := d.Headers["source-file-location"].(string)
 	output := d.Headers["rebuilt-file-location"].(string)
 	replyTo := d.Headers["outcome-reply-to"].(string)
@@ -148,6 +150,7 @@ func processMessage(d amqp.Delivery) (bool, error) {
 	podArgs := pod.PodArgs{
 		PodNamespace:                   podNamespace,
 		ArchiveFileID:                  archiveFileID,
+		ArchiveFileType:                archiveFileType,
 		Input:                          input,
 		Output:                         output,
 		InputMount:                     inputMount,
