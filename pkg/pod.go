@@ -32,6 +32,7 @@ type PodArgs struct {
 	AdaptationRequestQueuePort     string
 	MessageBrokerUser              string
 	MessageBrokerPassword          string
+	PushGatewayEndpoint            string
 }
 
 func (podArgs *PodArgs) GetClient() error {
@@ -138,6 +139,7 @@ func (pa PodArgs) GetPodObject() *core.Pod {
 						{Name: "MessageBrokerPassword", Value: pa.MessageBrokerPassword},
 						{Name: "AdaptationRequestQueueHostname", Value: pa.AdaptationRequestQueueHostname},
 						{Name: "AdaptationRequestQueuePort", Value: pa.AdaptationRequestQueuePort},
+						{Name: "MetricsEndpoint", Value: pa.PushGatewayEndpoint},
 					},
 					VolumeMounts: []core.VolumeMount{
 						{Name: "sourcedir", MountPath: pa.InputMount},

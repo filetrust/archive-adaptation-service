@@ -46,6 +46,7 @@ var (
 	podNamespace                          = os.Getenv("POD_NAMESPACE")
 	exchange                              = os.Getenv("EXCHANGE")
 	metricsPort                           = os.Getenv("METRICS_PORT")
+	pushgatewayEndpoint                   = os.Getenv("PUSHGATEWAY_ENDPOINT")
 	inputMount                            = os.Getenv("INPUT_MOUNT")
 	outputMount                           = os.Getenv("OUTPUT_MOUNT")
 	archiveProcessingImage                = os.Getenv("ARCHIVE_PROCESSING_IMAGE")
@@ -59,8 +60,8 @@ var (
 )
 
 func main() {
-	if podNamespace == "" || exchange == "" || metricsPort == "" || inputMount == "" || outputMount == "" || archiveProcessingImage == "" || archiveProcessingTimeout == "" {
-		log.Fatalf("init failed: POD_NAMESPACE, EXCHANGE, METRICS_PORT, INPUT_MOUNT, OUTPUT_MOUNT, ARCHIVE_PROCESSING_IMAGE or ARCHIVE_PROCESSING_TIMEOUT environment variables not set")
+	if podNamespace == "" || exchange == "" || metricsPort == "" || pushgatewayEndpoint == "" || inputMount == "" || outputMount == "" || archiveProcessingImage == "" || archiveProcessingTimeout == "" {
+		log.Fatalf("init failed: POD_NAMESPACE, EXCHANGE, METRICS_PORT, PUSHGATEWAY_ENDPOINT, INPUT_MOUNT, OUTPUT_MOUNT, ARCHIVE_PROCESSING_IMAGE or ARCHIVE_PROCESSING_TIMEOUT environment variables not set")
 	}
 
 	if archiveAdaptationRequestQueueHostname == "" || adaptationRequestQueueHostname == "" {
@@ -170,6 +171,7 @@ func processMessage(d amqp.Delivery) (bool, error) {
 		AdaptationRequestQueuePort:     adaptationRequestQueuePort,
 		MessageBrokerUser:              messageBrokerUser,
 		MessageBrokerPassword:          messageBrokerPassword,
+		PushGatewayEndpoint:            pushgatewayEndpoint,
 	}
 
 	err := podArgs.GetClient()
